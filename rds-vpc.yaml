@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: VPC with 3 public subnets across 3 AZs in us-west-2.
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: VPC-JOHVEL8568
+          
+
+  PublicSubnetAZ1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-west-2a
+      CidrBlock: 10.0.0.0/20
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: VPC-JOHVEL8568-public-us-west-2a
+
+  PublicSubnetAZ2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-west-2b
+      CidrBlock: 10.0.16.0/20
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: VPC-JOHVEL8568-public-us-west-2b
+
+  PublicSubnetAZ3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-west-2c
+      CidrBlock: 10.0.32.0/20
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: VPC-JOHVEL8568-public-us-west-2c
+  RdsInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      VPCSecurityGroups:
+      - <SECURITY-GROUP-ID>
+      AllocatedStorage: '5'
+      DBInstanceClass: db.t3.micro
+      DBInstanceIdentifier: playground-db
+      Engine: MySQL
+      MasterUsername: Admin
+      MasterUserPassword: CloudAcademy123!
+Outputs:
+  VpcId:
+    Description: VPC ID
+    Value: !Ref VPC
+    Export:
+      Name: !Sub "${AWS::StackName}-VpcId"
+
+  PublicSubnetIds:
+    Description: Public Subnet IDs (AZ1, AZ2, AZ3)
+    Value: !Join
+      - ","
+      - - !Ref PublicSubnetAZ1
+        - !Ref PublicSubnetAZ2
+        - !Ref PublicSubnetAZ3
+    Export:
+      Name: !Sub "${AWS::StackName}-PublicSubnetIds"
+
+  PublicSubnetAz1Id:
+    Description: Public Subnet ID in us-west-2a
+    Value: !Ref PublicSubnetAZ1
+    Export:
+      Name: !Sub "${AWS::StackName}-PublicSubnetAz1Id"
+
+  PublicSubnetAz2Id:
+    Description: Public Subnet ID in us-west-2b
+    Value: !Ref PublicSubnetAZ2
+    Export:
+      Name: !Sub "${AWS::StackName}-PublicSubnetAz2Id"
+
+  PublicSubnetAz3Id:
+    Description: Public Subnet ID in us-west-2c
+    Value: !Ref PublicSubnetAZ3
+    Export:
+      Name: !Sub "${AWS::StackName}-PublicSubnetAz3Id"
